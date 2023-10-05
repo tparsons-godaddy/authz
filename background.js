@@ -1,18 +1,50 @@
-chrome.runtime.onInstalled.addListener(() => {
-
-  //create context menu
-  chrome.contextMenus.create({
-      id: "1",
-      title: "Authz link", 
-      contexts: ["selection"], 
-  })
+chrome.contextMenus.create({
+  id: 'thunderIntoWebsitesDev',
+  title: 'Thunder into Website - Dev',
+  contexts: ['selection'],
+  'onclick': openDev()
 });
-
-//listener for context menu
-chrome.contextMenus.onClicked.addListener(function(info, tab){
-  //the URL that will be added to based on the selection
-  baseURL = "http://en.wikipedia.org/wiki/";
-  newURL = `https://role-authz.godaddy.com/authorize?websiteId=${info.selectionText}&subdomain=marketing.hub&path=website/${info.selectionText}`;
-  //create the new URL in the user's browser
-  chrome.tabs.create({ url: newURL });
-})
+​
+chrome.contextMenus.create({
+  id: 'thunderIntoWebsitesTest',
+  title: 'Thunder into Website - Test',
+  contexts: ['selection'],
+  'onclick': openTest()
+});
+​
+chrome.contextMenus.create({
+  id: 'thunderIntoWebsitesProd',
+  title: 'Thunder into Website - Prod',
+  contexts: ['selection'],
+  'onclick': openProd()
+});
+​
+chrome.contextMenus.create({
+  id: 'thunderSeparator',
+  type: 'separator',
+  contexts: ['selection']
+});
+​
+function openDev(){
+  return function(info, tab){
+    let text = info.selectionText;
+    let link = `https://role-authz.dev-godaddy.com/authorize?websiteId=${text}&subdomain=marketing.hub&path=website/${text}`;
+    chrome.tabs.create ({ index: tab.index + 1, url: link, selected: true });
+  }
+};
+​
+function openTest(){
+  return function(info, tab){
+    let text = info.selectionText;
+    let link = `https://role-authz.test-godaddy.com/authorize?websiteId=${text}&subdomain=marketing.hub&path=website/${text}`;
+    chrome.tabs.create ({ index: tab.index + 1, url: link, selected: true });
+  }
+};
+​
+function openProd(){
+  return function(info, tab){
+    let text = info.selectionText;
+    let link = `https://role-authz.godaddy.com/authorize?websiteId=${text}&subdomain=marketing.hub&path=website/${text}`;
+    chrome.tabs.create ({ index: tab.index + 1, url: link, selected: true });
+  }
+};
