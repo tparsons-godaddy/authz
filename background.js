@@ -1,50 +1,50 @@
-chrome.contextMenus.create({
-  id: 'thunderIntoWebsitesDev',
-  title: 'Thunder into Website - Dev',
-  contexts: ['selection'],
-  'onclick': openDev()
-});
-​
-chrome.contextMenus.create({
-  id: 'thunderIntoWebsitesTest',
-  title: 'Thunder into Website - Test',
-  contexts: ['selection'],
-  'onclick': openTest()
-});
-​
-chrome.contextMenus.create({
-  id: 'thunderIntoWebsitesProd',
-  title: 'Thunder into Website - Prod',
-  contexts: ['selection'],
-  'onclick': openProd()
-});
-​
-chrome.contextMenus.create({
-  id: 'thunderSeparator',
-  type: 'separator',
-  contexts: ['selection']
-});
-​
-function openDev(){
-  return function(info, tab){
-    let text = info.selectionText;
-    let link = `https://role-authz.dev-godaddy.com/authorize?websiteId=${text}&subdomain=marketing.hub&path=website/${text}`;
-    chrome.tabs.create ({ index: tab.index + 1, url: link, selected: true });
+chrome.runtime.onInstalled.addListener(() => {
+
+  let env = [{ 
+    "id": "prod",
+    "url": "godaddy.com",
+    "contexts": ["selection"],
+    "title": "AuthZ PROD"
+  },
+  { 
+    "id": "dev",
+    "url": "dev-godaddy.com",
+    "contexts": ["selection"],
+    "title": "AuthZ DEV"
+  },
+  { 
+    "id": "test",
+    "url": "test-godaddy.com",
+    "contexts": ["selection"],
+    "title": "AuthZ TEST"
   }
-};
-​
-function openTest(){
-  return function(info, tab){
-    let text = info.selectionText;
-    let link = `https://role-authz.test-godaddy.com/authorize?websiteId=${text}&subdomain=marketing.hub&path=website/${text}`;
-    chrome.tabs.create ({ index: tab.index + 1, url: link, selected: true });
+];
+
+for(let i = 0; i < env.length; i++) {
+  console.log(env[i].id, env[i].title)
+  chrome.contextMenus.create({
+    id: env[i].id,
+    title: env[i].title, 
+    contexts: ["selection"], 
+})};
+});
+
+//listener for context menu
+chrome.contextMenus.onClicked.addListener(function(info, tab){
+  let newUrl;
+  console.log('CLICK', info.menuItemId)
+  //the URL that will be added to based on the selection
+  switch(info.menuItemId) {
+    case 'prod':
+      newUrl = `https://role-authz.godaddy.com/authorize?websiteId=${info.selectionText}&subdomain=marketing.hub&path=website/${info.selectionText}`
+      break;
+    case 'test':
+      newUrl = `https://role-authz.test-godaddy.com/authorize?websiteId=${info.selectionText}&subdomain=marketing.hub&path=website/${info.selectionText}`
+      break;
+    case 'dev':
+      newUrl = `https://role-authz.dev-godaddy.com/authorize?websiteId=${info.selectionText}&subdomain=marketing.hub&path=website/${info.selectionText}`
+      break;
   }
-};
-​
-function openProd(){
-  return function(info, tab){
-    let text = info.selectionText;
-    let link = `https://role-authz.godaddy.com/authorize?websiteId=${text}&subdomain=marketing.hub&path=website/${text}`;
-    chrome.tabs.create ({ index: tab.index + 1, url: link, selected: true });
-  }
-};
+  //create the new URL in the user's browser
+  chrome.tabs.create({ url: newUrl });
+})
